@@ -1,27 +1,26 @@
 import React from 'react';
-import reactLogo from './assets/react.svg';
 import { Link, Outlet } from 'react-router-dom';
-import './App.css';
+import styles from './App.module.scss';
 
 function App() {
 
   return (
-    <div className="app">
-      <header className="app-header">
-        <img src={reactLogo} className="logo react" alt="React logo" />
-        <ul>
+    <div className={styles.root}>
+      <header className={styles.header}>
+        <img src="./cinema-ico.png" className={styles.logo} alt="Logo" />
+        <ul className={styles.list}>
           <li>
-            <Link className="app-link" to="/">Home</Link>
+            <Link className={styles.link} to="/">Home</Link>
           </li>
           <li>
-            <Link className="app-link" to="/about">About</Link>
+            <Link className={styles.link} to="/about">About</Link>
           </li>
           <li>
-            <Link className="app-link" to="/movies">Movies</Link>
+            <Link className={styles.link} to="/movies">Movies</Link>
           </li>
         </ul>
       </header>
-      <main className="app-main">
+      <main className={styles.main}>
         <Outlet />
       </main>
     </div>

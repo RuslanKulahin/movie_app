@@ -2,7 +2,7 @@ import React from 'react'
 import ReactDOM from 'react-dom/client'
 import { RouterProvider, createBrowserRouter } from 'react-router-dom';
 import App from './App.tsx';
-import './index.css';
+import './index.scss';
 import About from './features/About/About.tsx';
 import Movies from './features/Movies/Movies.tsx';
 import { Provider } from 'react-redux';

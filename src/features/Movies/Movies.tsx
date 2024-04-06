@@ -1,9 +1,8 @@
-import "./Movies.css"
-
 import { connect } from "react-redux";
 import { RootState } from "../../store";
 import { Movie } from "../../reducers/movies";
 import MovieCard from "./MovieCard";
+import styles from "./Movies.module.scss";
 
 interface Props {
     movies: Movie[];
@@ -12,7 +11,7 @@ interface Props {
 function Movies({ movies }: Props) {
     return (
         <section>
-            <div className="Movies-list">
+            <div className={styles.list}>
                 {movies.map(m => (
                     <MovieCard
                         id={m.id}
