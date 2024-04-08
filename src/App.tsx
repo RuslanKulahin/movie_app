@@ -7,7 +7,9 @@ function App() {
   return (
     <div className={styles.root}>
       <header className={styles.header}>
-        <img src="./cinema-ico.png" className={styles.logo} alt="Logo" />
+        <Link className={styles.link} to="/">
+          <img src="./cinema-ico.png" className={styles.logo} alt="Logo" /> 
+        </Link>
         <ul className={styles.list}>
           <li>
             <Link className={styles.link} to="/">Home</Link>

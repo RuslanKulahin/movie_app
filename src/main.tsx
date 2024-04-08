@@ -5,6 +5,7 @@ import App from './App.tsx';
 import './index.scss';
 import About from './features/About/About.tsx';
 import Movies from './features/Movies/Movies.tsx';
+import MoviePage from './pages/MoviePage/MoviePage.tsx';
 import { Provider } from 'react-redux';
 import store from './store';
 
@@ -20,6 +21,10 @@ const router = createBrowserRouter([
       {
         path: "movies",
         element: <Movies />,
+      },
+      {
+        path: "movies/:movieId",
+        element: <MoviePage />,
       },
     ],
   },

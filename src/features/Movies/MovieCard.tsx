@@ -6,12 +6,13 @@ interface Props {
     title: string;
     popularity: number;
     overview: string;
+    image?: string;
 }
 
-function MovieCard({ id, title, overview, popularity }: Props) {
+function MovieCard({ id, title, overview, popularity, image = "./movie-thumb.png" }: Props) {
     return (
         <div className={styles.card}>
-            <img className={styles.thumbnail} src="./movie-thumb.png" alt={title}/>
+            <img className={styles.thumbnail} src={image} alt={title}/>
             <div className={styles.content}>
                 <div>
                     <Link to={`/movies/${id}`}>{title}</Link>
