@@ -1,37 +1,37 @@
 import configuration from "../configuration";
 
-async function get<TBody>(relativeUrl: string): Promise<TBody> {
-    const options = {
-        method: 'GET',
-        headers: {
-            accept: 'application/json',
-            Authorization: `Bearer ${configuration.apiToken}`
-        }
-    };
-    
-    /* The code snippet `const response = await fetch(
-            `${configuration.apiUrl}/3`,
-            options
-            );` is making a GET request to a specified URL constructed using the
-    `configuration.apiUrl`, the number `3`, and the `relativeUrl` parameter. The request is made
-    with the specified options including the method as 'GET' and headers such as 'accept' and
-    'Authorization' with the API token. */
-    const response = await fetch(
-        `${configuration.apiUrl}/3${relativeUrl}`,
-        options
-        );
+const apiBasePath = `${configuration.apiUrl}/3`
 
-    const json: TBody = await response.json()
-    return json;
+async function get<TBody>(relativeUrl: string): Promise<TBody> {
+    var headers = new Headers();
+    headers.append("Accept", "application/json");
+    headers.append("Authorization", `Bearer ${configuration.apiToken}`);
+
+    var requestOptions = {
+        method: "GET",
+        headers: headers
+    };
+
+    const response = await fetch(`${apiBasePath}${relativeUrl}`, requestOptions);
+    const value: TBody = await response.json();
+    return value;
 }
+
+interface PageResponse<TResult> {
+    page: number;
+    results: TResult[],
+    total_pages: number;
+    total_results: number;
+}
+
 
 export interface MovieDetails {
     id: number;
     title: string;
     overview: string;
     popularity: number;
+    backdrop_path?: string | null;
     adult: boolean;
-    backdrop_path: string;
     genre_ids: number[];
     original_language: string;
     original_title: string;
@@ -42,25 +42,24 @@ export interface MovieDetails {
     vote_count: number;
 }
 
-interface PageResponse<TResult> {
-    page: number;
-    results: TResult[];
-}
-
 interface Configuration {
     images: {
         base_url: string;
     }
 }
 
-export const client = {
-    async getConfiguration() {
-        return await get<Configuration>('/configuration');
+interface ITmbdClient {
+    getConfiguration: () => Promise<Configuration>;
+    getNowPlaying: () => Promise<MovieDetails[]>;
+}
+
+export const client: ITmbdClient = {
+    getConfiguration: async () => {
+        const response = await get<Configuration>("/configuration");
+        return response;
     },
-    async getNowPlaying(): Promise<MovieDetails[]> {
-        const response = await get<PageResponse<MovieDetails>>(
-            '/movie/now_playing?page=1'
-        )
+    getNowPlaying: async () => {
+        const response = await get<PageResponse<MovieDetails>>("/movie/now_playing");
         return response.results;
     }
 }

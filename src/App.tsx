@@ -1,32 +1,63 @@
-import React from 'react';
-import { Link, Outlet } from 'react-router-dom';
-import styles from './App.module.scss';
+import React from "react";
+import { Link as RouterLink, Outlet } from "react-router-dom";
+import { Stack, CssBaseline, AppBar, Toolbar, Link, ThemeProvider, createTheme, Typography } from "@mui/material";
+import LiveTvOutlinedIcon from "@mui/icons-material/LiveTvOutlined";
+import { teal } from "@mui/material/colors";
 
-function App() {
 
-  return (
-    <div className={styles.root}>
-      <header className={styles.header}>
-        <Link className={styles.link} to="/">
-          <img src="./cinema-ico.png" className={styles.logo} alt="Logo" /> 
+const defaultTheme = createTheme({
+  palette: {
+    primary: teal,
+    secondary: {
+      main: "#96000f",
+    },
+  },
+});
+
+function HeaderLink({
+    children,
+    to,
+}: {
+    to: string;
+    children: React.ReactNode;
+}) {
+    return (
+        <Link
+            component={RouterLink}
+            to={to}
+            variant="button"
+            color="inherit"
+            sx={{ my: 1, mx: 1.5 }}
+        >
+            {children}
         </Link>
-        <ul className={styles.list}>
-          <li>
-            <Link className={styles.link} to="/">Home</Link>
-          </li>
-          <li>
-            <Link className={styles.link} to="/about">About</Link>
-          </li>
-          <li>
-            <Link className={styles.link} to="/movies">Movies</Link>
-          </li>
-        </ul>
-      </header>
-      <main className={styles.main}>
-        <Outlet />
-      </main>
-    </div>
-  )
+    );
 }
 
-export default App
+function App() {
+    return (
+        <ThemeProvider theme={defaultTheme} >
+            <CssBaseline />
+            <AppBar>
+                <Toolbar>
+                    <HeaderLink to="/">
+                        <LiveTvOutlinedIcon sx={{ mr: 2, mt:0.7 }} />
+                    </HeaderLink>
+                    <Typography variant="h6" color="inherit" noWrap >
+                      The Movies DB
+                    </Typography>
+                    <Stack direction="row" spacing={2} sx={{ ml: 4 }}>
+                        <HeaderLink to="/">Home</HeaderLink>
+                        <HeaderLink to="/about">About</HeaderLink>
+                        <HeaderLink to="/movies">Movies</HeaderLink>
+                    </Stack>
+                </Toolbar>
+            </AppBar>
+            <main>
+                <Outlet />
+            </main>
+        </ThemeProvider>
+    );
+}
+
+export default App;
