@@ -4,7 +4,7 @@ import { RootState } from "../../store";
 import { Movie } from "../Movies/moviesSlise";
 import { Container } from "@mui/system";
 import { Typography, Box } from "@mui/material";
-import MovieView from './MovieView';
+import MovieView from './MovieAbout';
 
 interface Props {
     movies: Movie[];

@@ -5,8 +5,12 @@ import {
     CardMedia,
     Typography,
     Button,
+    IconButton,
+    Tooltip,
     CardActions,
 } from "@mui/material";
+import FavoriteIcon from '@mui/icons-material/Favorite';
+import About from '../About/About';
 
 interface Props {
     id: number
@@ -14,9 +18,17 @@ interface Props {
     popularity: number;
     overview: string;
     image?: string;
+    enableUserActions?: boolean;
 }
 
-function MovieCard({ id, title, overview, popularity, image = "./movie-thumb.png" }: Props) {
+function MovieCard({ 
+    id, 
+    title, 
+    overview, 
+    popularity,
+    enableUserActions, 
+    image = "./movie-thumb.png" 
+  }: Props) {
     return (
         <Card sx={{height: "100%", display: "flex", flexDirection: "column" }} >
             <CardMedia
@@ -43,6 +55,13 @@ function MovieCard({ id, title, overview, popularity, image = "./movie-thumb.png
                 >
                     View Details
                 </Button>
+                {enableUserActions && (
+                  <Tooltip title="Add to favorites">
+                    <IconButton aria-label="add to favorites">
+                      <FavoriteIcon color="primary"/>
+                    </IconButton>
+                  </Tooltip>
+                )}
             </CardActions>
         </Card>
     );

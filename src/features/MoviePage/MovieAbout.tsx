@@ -7,7 +7,7 @@ function MovieView({ movie }: { movie: Movie }) {
         return <Typography variant="h4" align="center" color="text.secondary" sx={{ py: 10 }} gutterBottom >Movie not found</Typography>
     }
     return (
-        <Container sx={{ py: 0 }} maxWidth="lg" >
+        <Container  maxWidth="lg" >
             <Box component="div" sx={{ bgcolor: '#e0f2f1', borderRadius: 8 }}>             
                 <CardMedia
                     component="div"
