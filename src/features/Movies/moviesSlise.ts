@@ -13,11 +13,15 @@ export interface Movie {
 interface MoviesState {
     top: Movie[];
     loading: boolean;
+    page: number;
+    hasMorePages: boolean;
 }
 
 const initialState: MoviesState = {
     top: [],
     loading: false,
+    page: 0,
+    hasMorePages: true,
 };
 
 function loading() {
@@ -26,42 +30,56 @@ function loading() {
   };
 }
 
-function loaded(movies: Movie[]) {
+function loaded(movies: Movie[], page: number, hasMorePages: boolean) {
   return {
       type: "movies/loaded",
-      payload: movies
+      payload: { movies, page, hasMorePages }
+  };
+}
+  
+export function fetchNextPage(): AppThunk<Promise<void>> {
+  return async (dispatch, getState) => {
+    const state = getState();
+    const nextPage = state.movies.page + 1;
+    dispatch(fetchPage(nextPage)); 
   };
 }
 
-// export type AppThunk<ReturnType> = ThunkAction<ReturnType, MoviesState, undefined, UnknownAction>;
+export function fetchPage(page: number): AppThunk<Promise<void>> {
+  return async (dispatch) => {
+    dispatch(loading());
 
-export function fetchMovies(): AppThunk<Promise<void>> {
-  return async (dispatch, getState) => {
-      dispatch(loading());
+    const configuration = await client.getConfiguration(); // todo: single load per app
+    const nowPlaying = await client.getNowPlaying(page);
+    const imageSize = "w780";
+    const movies: Movie[] = nowPlaying.results.map((movie) => ({
+        id: movie.id,
+        title: movie.title,
+        overview: movie.overview,
+        popularity: movie.popularity,
+        image: movie.backdrop_path ? `${configuration.images.base_url}${imageSize}${movie.backdrop_path}` : undefined
+    }));
 
-      const configuration = await client.getConfiguration(); // todo: single load per app
-      const results = await client.getNowPlaying();
-      const imageSize = "w780";
-      const movies: Movie[] = results.map((movie) => ({
-          id: movie.id,
-          title: movie.title,
-          overview: movie.overview,
-          popularity: movie.popularity,
-          image: movie.backdrop_path ? `${configuration.images.base_url}${imageSize}${movie.backdrop_path}` : undefined
-      }));
+    const hasMorePages = nowPlaying.page < nowPlaying.totalPages;
 
-      dispatch(loaded(movies))
+    dispatch(loaded(movies, page, hasMorePages));
   }
-}
+};
 
 const moviesReducer = createReducer<MoviesState>(
   initialState,
   {
-      "movies/loading": (state, action: ActionWithPayload<boolean>) => {
+      "movies/loading": (state) => {
           return { ...state, loading: true };
       },
-      "movies/loaded": (state, action: ActionWithPayload<Movie[]>) => {
-          return { ...state, top: action.payload, loading: false };
+      "movies/loaded": (state, action: ActionWithPayload<{ movies: Movie[]; page: number; hasMorePages: boolean }>) => {
+          return {
+            ...state,
+            top: [...state.top, ...action.payload.movies],
+            page: action.payload.page,
+            hasMorePages: action.payload.hasMorePages,
+            loading: false,
+          };
       },
   });
 

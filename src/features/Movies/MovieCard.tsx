@@ -10,7 +10,6 @@ import {
     CardActions,
 } from "@mui/material";
 import FavoriteIcon from '@mui/icons-material/Favorite';
-import About from '../About/About';
 
 interface Props {
     id: number

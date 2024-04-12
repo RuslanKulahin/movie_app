@@ -1,60 +1,57 @@
 import { useEffect, useContext } from "react";
-import { connect } from "react-redux";
-import { RootState } from "../../store";
-import { useAppDispatch } from "../../hooks";
-import { Movie, fetchMovies } from "./moviesSlise";
+import { useAppDispatch, useAppSelector } from "../../hooks";
+import { Movie,fetchNextPage } from "./moviesSlise";
 import { Container } from "@mui/system";
 import { Typography, LinearProgress, Grid } from "@mui/material";
 import MovieCard from "./MovieCard";
 import { AuthContext, anonymousUser } from "../../AuthContext";
+import { useIntersectionObserver } from "../../hooks/useIntersectionObserver";
 
-interface Props {
-    movies: Movie[];
-    loading: boolean;
+function Movies() {
+  const dispatch = useAppDispatch();
+
+  const movies = useAppSelector((state) => state.movies.top);
+  const loading = useAppSelector((state) => state.movies.loading);
+  const hasMorePages = useAppSelector((state) => state.movies.hasMorePages);
+
+  const { user } = useContext(AuthContext);
+  const loggedin = user !== anonymousUser;
+
+  const [targetRef, entry] = useIntersectionObserver();
+
+  useEffect(() => {
+    if (entry?.isIntersecting && hasMorePages) {
+      dispatch(fetchNextPage());
+    }
+  }, [dispatch, entry?.isIntersecting, hasMorePages]);
+
+  return (
+    <Container sx={{ py: 8 }} maxWidth="lg">
+      <Typography variant="h5" sx={{ py: 2 }} align="center" gutterBottom>
+        Now playing
+      </Typography>
+      <Grid container spacing={4}>
+        {movies.map((m) => (
+          <Grid item key={m.id} xs={12} sm={6} md={4}>
+            <MovieCard
+              key={m.id}
+              id={m.id}
+              title={m.title}
+              overview={m.overview}
+              popularity={m.popularity}
+              image={m.image}
+              enableUserActions={loggedin}
+            />
+          </Grid>
+        ))}
+      </Grid>
+      <div ref={targetRef}>
+        {loading && 
+          <LinearProgress color="secondary" sx={{ mt: 3 }} />}
+      </div>
+    </Container>
+  );
 }
 
-function Movies({ movies, loading }: Props) {
-    const dispatch = useAppDispatch();
+export default Movies;
 
-    const { user } = useContext(AuthContext);
-    const loggedin = user !== anonymousUser;
-
-    useEffect(() => {
-        dispatch(fetchMovies());
-    }, [dispatch]);
-
-    return (
-        <Container sx={{ py: 8 }} maxWidth="lg">
-            <Typography variant="h5" sx={{ py: 2 }} align="center" gutterBottom>
-                Now playing
-            </Typography>
-            {loading ? (
-                <LinearProgress color="secondary" />
-            ) : (
-                <Grid container spacing={4} >
-                    {movies.map((m) => (
-                        <Grid item key={m.id} xs={12} sm={6} md={4}>
-                            <MovieCard
-                                id={m.id}
-                                title={m.title}
-                                overview={m.overview}
-                                popularity={m.popularity}
-                                image={m.image}
-                                enableUserActions={loggedin}
-                            />
-                        </Grid>
-                    ))}
-                </Grid>
-            )}
-        </Container>
-    );
-}
-
-const mapStateToProps = (state: RootState) => ({
-    movies: state.movies.top,
-    loading: state.movies.loading,
-});
-
-const connector = connect(mapStateToProps);
-
-export default connector(Movies);
