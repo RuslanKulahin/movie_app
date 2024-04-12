@@ -1,6 +1,7 @@
 import { ActionWithPayload, createReducer } from "../../redux/utils";
-import { client } from "../../api/tmdb";
+import { client, MoviesFilters } from "../../api/tmdb";
 import { AppThunk } from "../../store";
+import { genres } from "./genres";
 
 export interface Movie {
     id: number;
@@ -10,11 +11,18 @@ export interface Movie {
     image?: string;
 }
 
+export interface Genre {
+  id: number;
+  name: string;
+}
+
+
 interface MoviesState {
     top: Movie[];
     loading: boolean;
     page: number;
     hasMorePages: boolean;
+    genres: Genre[];
 }
 
 const initialState: MoviesState = {
@@ -22,6 +30,7 @@ const initialState: MoviesState = {
     loading: false,
     page: 0,
     hasMorePages: true,
+    genres
 };
 
 function loading() {
@@ -36,23 +45,27 @@ function loaded(movies: Movie[], page: number, hasMorePages: boolean) {
       payload: { movies, page, hasMorePages }
   };
 }
+
+export const resetMovies = () => ({
+  type: "movies/reset",
+});
   
-export function fetchNextPage(): AppThunk<Promise<void>> {
+export function fetchNextPage(filters: MoviesFilters = {}): AppThunk<Promise<void>> {
   return async (dispatch, getState) => {
     const state = getState();
     const nextPage = state.movies.page + 1;
-    dispatch(fetchPage(nextPage)); 
+    dispatch(fetchPage(nextPage, filters)); 
   };
 }
 
-export function fetchPage(page: number): AppThunk<Promise<void>> {
+export function fetchPage(page: number, filters: MoviesFilters ): AppThunk<Promise<void>> {
   return async (dispatch) => {
     dispatch(loading());
 
     const configuration = await client.getConfiguration(); // todo: single load per app
-    const nowPlaying = await client.getNowPlaying(page);
+    const moviesResponce = await client.getMovies(page, filters);
     const imageSize = "w780";
-    const movies: Movie[] = nowPlaying.results.map((movie) => ({
+    const movies: Movie[] = moviesResponce.results.map((movie) => ({
         id: movie.id,
         title: movie.title,
         overview: movie.overview,
@@ -60,7 +73,7 @@ export function fetchPage(page: number): AppThunk<Promise<void>> {
         image: movie.backdrop_path ? `${configuration.images.base_url}${imageSize}${movie.backdrop_path}` : undefined
     }));
 
-    const hasMorePages = nowPlaying.page < nowPlaying.totalPages;
+    const hasMorePages = moviesResponce.page < moviesResponce.totalPages;
 
     dispatch(loaded(movies, page, hasMorePages));
   }
@@ -81,6 +94,9 @@ const moviesReducer = createReducer<MoviesState>(
             loading: false,
           };
       },
+      "movies/reset" : (state) => {
+        return {...initialState }
+      }
   });
 
 export default moviesReducer;
