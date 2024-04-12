@@ -25,7 +25,7 @@ import { Controller, useForm } from "react-hook-form";
     onApply(filters: Filters): void
   }
 
-export function MoviesFilter({ onApply }: MoviesFilterProps) {
+export default function MoviesFilter({ onApply }: MoviesFilterProps) {
 
   const { handleSubmit, control, formState } = useForm<Filters>({
     defaultValues: {

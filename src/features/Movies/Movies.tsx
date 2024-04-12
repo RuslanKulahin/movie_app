@@ -1,20 +1,21 @@
-import { useEffect, useContext, useState, useCallback } from "react";
+import { lazy, useEffect, useContext, useState, useCallback, Suspense } from "react";
 import { useAppDispatch, useAppSelector } from "../../hooks";
 import { fetchNextPage, resetMovies } from "./moviesSlise";
 import { Container } from "@mui/system";
 import { Typography, LinearProgress, Grid } from "@mui/material";
 import MovieCard from "./MovieCard";
-import { Filters, MoviesFilter } from "./MoviesFilter";
 import { AuthContext, anonymousUser } from "../../AuthContext";
 import { useIntersectionObserver } from "../../hooks/useIntersectionObserver";
 
-export default function Movies() {
+const MoviesFilter = lazy(() => import("./MoviesFilter"));
+
+export function Component() {
   const dispatch = useAppDispatch();
   const movies = useAppSelector((state) => state.movies.top);
   const loading = useAppSelector((state) => state.movies.loading);
   const hasMorePages = useAppSelector((state) => state.movies.hasMorePages);
 
-  const [filters, setFilters] = useState<Filters>();
+  const [filters, setFilters] = useState<any>();
 
   const { user } = useContext(AuthContext);
   const loggedIn = user !== anonymousUser;
@@ -28,7 +29,7 @@ export default function Movies() {
     if (entry?.isIntersecting && hasMorePages) {
       const moviesFilters = filters 
       ? {
-          keywords: filters?.keywords.map((k) => k.id),
+          keywords: filters?.keywords.map((k:any) => k.id),
           genres: filters?.genres,
         }
       : undefined;
@@ -44,10 +45,12 @@ export default function Movies() {
   return (
     <Grid container spacing ={2} sx={{ flexWrap: "nowrap" }}>
       <Grid item xs="auto">
+        <Suspense fallback={<span >Loading filters...</span>} >
         <MoviesFilter onApply={(filters) => {
           dispatch(resetMovies());
           setFilters(filters);
           }} />
+        </Suspense>
       </Grid>   
       <Grid item xs={12}>
         <Container sx={{ py: 8 }} maxWidth="lg">
@@ -82,5 +85,5 @@ export default function Movies() {
   );
 }
 
-
+Component.displayName = "Movies";
 
