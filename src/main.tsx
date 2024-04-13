@@ -3,16 +3,19 @@ import "@fontsource/roboto/400.css";
 import "@fontsource/roboto/500.css";
 import "@fontsource/roboto/700.css";
 
-import React from "react";
+// import MoviePage from "./features/MoviePage/MoviePage.tsx";
+import { StrictMode, Suspense, lazy } from "react";
 import ReactDOM from "react-dom/client";
 import { RouterProvider, createBrowserRouter } from "react-router-dom";
-import App from "./App";
-import About from "./features/About/About.tsx";
-import MoviePage from "./features/MoviePage/MoviePage.tsx";
 import { Provider } from "react-redux";
 import store from "./store";
+import App from "./App";
+import About from "./features/About/About";
 import Home from "./features/Home/Home";
 import { ErrorBoundary } from "./ErrorBoundary";
+import { LinearProgress } from "@mui/material";
+
+const Movies = lazy(() => import("./features/Movies/Movies"));
 
 function AppEntrypoint() {
   return (
@@ -35,24 +38,28 @@ const router = createBrowserRouter([
       },
       {
         path: "movies",
-        lazy: () => import("./features/Movies/Movies"),
+        element: (
+          <Suspense fallback={<LinearProgress sx={{ mt: 1 }} />}>
+            <Movies />
+          </Suspense>
+        ),
       },
       {
         path: "about",
         element: <About />,
       },
-      {
-        path: "movies/:movieId",
-        element: <MoviePage />,
-      },
+      // {
+      //   path: "movies/:movieId",
+      //   element: <MoviePage />,
+      // },
     ],
   },
 ]);
 
 const root = ReactDOM.createRoot(document.getElementById("root") as HTMLElement);
 root.render(
-  <React.StrictMode>
+  <StrictMode>
     <RouterProvider router={router} />
-  </React.StrictMode>
+  </StrictMode>
 );
 
