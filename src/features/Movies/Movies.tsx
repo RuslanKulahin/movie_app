@@ -1,33 +1,31 @@
-import { useContext, useState, useCallback, Suspense, lazy } from "react";
+import { useState, useCallback } from "react";
 import { Container } from "@mui/system";
 import { Typography, LinearProgress, Grid } from "@mui/material";
 import MovieCard from "./MovieCard";
-import { AuthContext, anonymousUser } from "../../AuthContext";
 import { useIntersectionObserver } from "../../hooks/useIntersectionObserver";
 import { MoviesQuery, useGetMoviesQuery, useGetConfigurationQuery, MoviesFilters } from "../../services/tmdb";
 import { Filters } from "./MoviesFilter";
 import { MoviesFilter } from "./MoviesFilter";
+import { useAuth0 } from "@auth0/auth0-react";
 
-
-const initialQuery = {
+const initialQuery: MoviesQuery = {
   page: 1,
   filters: {},
 };
 
 function Movies() {
+  const { isAuthenticated, user } = useAuth0();
   const [query, setQuery] = useState<MoviesQuery>(initialQuery);
 
   const { data: configuration } =  useGetConfigurationQuery();
-  const { data, isFetching } =useGetMoviesQuery(query);
-  const movies = data?.results;
+  const { data, isFetching } = useGetMoviesQuery(query);
+
+  const movies = data?.results ?? [];
   const hasMorePages = data?.hasMorePages;
 
   function formatImageUrl(imagePath?: string | null) {
     return imagePath && configuration ? `${configuration.images.base_url}w780${imagePath}` : undefined;
   }
-
-  const { user } = useContext(AuthContext);
-  const loggedIn = user !== anonymousUser;
 
   const onIntersect = useCallback(() => {
     if (hasMorePages) {
@@ -38,8 +36,8 @@ function Movies() {
   const [targetRef] = useIntersectionObserver({ onIntersect });
 
   const handleAddToFavorite = useCallback((id: number): void => {
-    alert(`Not implemented! Action: ${user.name} is adding movie ${id} to favorites.`)
-  }, [user.name]);
+    alert(`Not implemented! Action: ${user?.name} is adding movie ${id} to favorites.`)
+  }, [user?.name]);
 
   return (
     <Grid container spacing ={2} sx={{ flexWrap: "nowrap" }}>
@@ -69,7 +67,7 @@ function Movies() {
                   overview={m.overview}
                   popularity={m.popularity}
                   image={formatImageUrl(m.backdrop_path)}
-                  enableUserActions={loggedIn}
+                  enableUserActions={isAuthenticated}
                   onAddFavorite={handleAddToFavorite}
                 />
               </Grid>

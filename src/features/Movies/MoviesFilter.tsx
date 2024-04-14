@@ -46,7 +46,7 @@ export function MoviesFilter({ onApply }: MoviesFilterProps) {
   );
 
   return (
-    <Paper sx={{ m: 2, p: 0.5, maxWidth: 350 }}>
+    <Paper sx={{ m: 2, p: 0.5, maxWidth: 420 }}>
       <form onSubmit={handleSubmit(onApply)}>
         <FormControl sx={{ m: 2, display: "block" }} component="fieldset" variant="standard">
           <Controller
@@ -56,6 +56,7 @@ export function MoviesFilter({ onApply }: MoviesFilterProps) {
               <Autocomplete
                 multiple
                 loading={keywordsLoading}
+                
                 disablePortal
                 options={keywordsOptions}
                 filterOptions={(x) => x}
@@ -75,7 +76,7 @@ export function MoviesFilter({ onApply }: MoviesFilterProps) {
           ) : (
             <>
               <FormLabel component="legend">Genres</FormLabel>
-              <FormGroup sx={{ maxHeight: 500 }}>
+              <FormGroup sx={{ maxHeight: 550 }}>
                 <Controller
                   name="genres"
                   control={control}
